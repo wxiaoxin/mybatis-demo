@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.king.demo.mapper.UserMapper">
+
+    <!--<resultMap id="BaseResultMap" type="com.king.demo.domain.entity.User">-->
+        <!--<constructor>-->
+            <!--<idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT"/>-->
+            <!--<arg column="name" javaType="java.lang.String" jdbcType="VARCHAR"/>-->
+            <!--<arg column="age" javaType="java.lang.Integer" jdbcType="TINYINT"/>-->
+            <!--<arg column="home_address_id" javaType="java.lang.Long" jdbcType="BIGINT"/>-->
+            <!--<arg column="company_address_id" javaType="java.lang.Long" jdbcType="BIGINT"/>-->
+            <!--<arg column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>-->
+            <!--<arg column="update_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>-->
+            <!--<arg column="status" javaType="java.lang.Byte" jdbcType="TINYINT"/>-->
+        <!--</constructor>-->
+    <!--</resultMap>-->
+
+
+    <resultMap id="BaseResultMap" type="com.king.demo.domain.entity.User">
+        <id property="id" column="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result property="name" column="name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="age" column="age" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result property="createTime" column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result property="status" column="status" javaType="java.lang.Byte" jdbcType="TINYINT"/>
+        <result property="homeAddressId" column="home_address_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result property="companyAddressId" column="company_address_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <association property="homeAddress" javaType="Address">
+            <id property="id" column="home_address_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <result property="province" column="home_address_province" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="city" column="home_address_city" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="county" column="home_address_county" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        </association>
+        <association property="companyAddress" javaType="Address">
+            <id property="id" column="company_address_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <result property="province" column="company_address_province" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="city" column="company_address_city" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="county" column="company_address_county" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.king.demo.domain.entity.User">
+        INSERT INTO user(name, age, home_address_id, company_address_id)
+        VALUES (#{name, jdbcType=VARCHAR},
+                #{age, jdbcType=TINYINT},
+                #{homeAddressId, jdbcType=BIGINT},
+                #{companyAddressId, jdbcType=BIGINT})
+    </insert>
+
+    <select id="getById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT id, name, age, home_address_id, company_address_id, create_time, update_time, status
+        FROM user
+        WHERE id = #{id} AND status = 1
+    </select>
+
+    <select id="getByIdWithAddress" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+          u.id, u.name, u.age, u.create_time, u.update_time, u.status,
+          a.id        AS home_address_id,
+          a.province  AS home_address_province,
+          a.city      AS home_address_city,
+          a.county    AS home_address_county,
+          a2.id       AS company_address_id,
+          a2.province AS company_address_province,
+          a2.city     AS company_address_city,
+          a2.county   AS company_address_county
+        FROM user u LEFT JOIN address a ON u.home_address_id = a.id
+                    LEFT JOIN address a2 ON u.company_address_id = a2.id
+        WHERE u.id = #{id}
+    </select>
+
+</mapper>
